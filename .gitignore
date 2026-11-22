@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+*.db
+.venv/
+venv/
+.env
+.terraform/
+*.tfstate
+*.tfstate.backup
+.idea/
+.vscode/
+*.log

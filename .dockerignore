@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+.git
+.gitignore
+.dockerignore
+README.md
+docs/
+tests/
+k8s/
+terraform/
+.github/
+*.md

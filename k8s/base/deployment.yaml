@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-devops-blue
+  namespace: capstone-devops-prod
+  labels:
+    app: capstone-devops
+    track: blue
+    version: "1.4.2"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: capstone-devops
+      track: blue
+  template:
+    metadata:
+      labels:
+        app: capstone-devops
+        track: blue
+        version: "1.4.2"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: api
+          image: capstone-devops:1.4.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+              name: http
+          env:
+            - name: APP_VERSION
+              value: "1.4.2"
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: capstone-devops-config
+                  key: APP_ENV
+            - name: SERVICE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: capstone-devops-config
+                  key: SERVICE_NAME
+          resources:
+            requests:
+              cpu: "40m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 5000
+            initialDelaySeconds: 8
+            periodSeconds: 12
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 5000
+            initialDelaySeconds: 4
+            periodSeconds: 6
+            failureThreshold: 2

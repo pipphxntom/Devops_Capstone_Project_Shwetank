@@ -1,0 +1,55 @@
+# Blue-green cutover example
+# Deploy green alongside blue, then switch Service selector
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone-devops-green
+  namespace: capstone-devops-prod
+  labels:
+    app: capstone-devops
+    track: green
+    version: "1.5.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: capstone-devops
+      track: green
+  template:
+    metadata:
+      labels:
+        app: capstone-devops
+        track: green
+        version: "1.5.0"
+    spec:
+      containers:
+        - name: api
+          image: capstone-devops:1.5.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+          env:
+            - name: APP_VERSION
+              value: "1.5.0"
+            - name: APP_ENV
+              value: "production"
+          resources:
+            requests:
+              cpu: "40m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 5000
+            initialDelaySeconds: 8
+            periodSeconds: 12
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 5000
+            initialDelaySeconds: 4
+            periodSeconds: 6
